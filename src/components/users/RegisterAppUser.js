@@ -12,7 +12,8 @@ function RegisterAppUser() {
       email:"",
       password:"",
       username: "",
-      role: ""
+      role: "",
+      photo: ""
   })
   const handleChange = e => {
     const { name, value } = e.target
@@ -28,9 +29,20 @@ const clearState = () => {
 const register = (event) => {
   event.preventDefault();
   let registerForm=document.getElementById('registerForm');  
-  const { name, email, password, role } = user
-  if( name && email && password && role){
-      axios.post("http://localhost:5000/api/v1/CreateAppUser", user)
+  const { name, username, email, password, role, photo} = user
+  if(name==''){
+    toast.error('Name Required');
+  }else if(username==''){
+    toast.error('Username Required');
+  }else if(email==''){
+    toast.error('Email Required');
+  }  else if(password==''){
+    toast.error('Password Required');  
+  }else if(role==''){
+    toast.error('Role Required');
+  }else{  
+  
+      axios.post("CreateAppUser", user)
       .then( res => {
           console.log(res.data)
           if (res.data.status === 'success') {   
@@ -39,15 +51,12 @@ const register = (event) => {
             clearState();
     
           }else{
-            toast.error('Already registered! Try another');
-           
+            toast.error('Already registered! Try another');           
             
           }
       })
-  } else {
-      alert("invlid input")
-  }
   
+    }
 }
 // const [role, setRole] = useState([])
 
@@ -141,7 +150,7 @@ const register = (event) => {
               </div>
          
                 <div className="card-body">
-                <Form id="registerForm" onSubmit={register}>
+                <Form id="registerForm" onSubmit={register} encType="multipart/form-data">
                 <div className="row">
                 <div className="col-md-6">
                   <div className="form-group">
@@ -188,15 +197,12 @@ const register = (event) => {
 </div>
 
                   </div> 
-                                  
-                  </div>
-                  {/* <div className="row">
-                  <div className="col-md-12">
+                  <div className="col-md-6">
                   <div className="form-group">
-                    <label htmlFor="exampleInputFile">Photo</label>
+                    <label htmlFor="exampleInputFile">Photo {user.photo}</label>
                     <div className="input-group">
                       <div className="custom-file">
-                        <input type="file" className="custom-file-input" id="exampleInputFile" />
+                        <input type="file" name="photo" value={user.photo} className="custom-file-input" id="exampleInputFile" accept="image/png, image/jpeg, image/jpg"  multiple="false" onChange={ handleChange } />
                         <label className="custom-file-label" htmlFor="exampleInputFile">Choose Photo</label>
                       </div>
                       <div className="input-group-append">
@@ -205,7 +211,9 @@ const register = (event) => {
                     </div>
                   </div>
                   </div>
-                  </div> */}
+                                  
+                  </div>
+                 
           <Button id="registerBtn" variant="primary" type="submit" className="submit-btn">
           Register
         </Button>

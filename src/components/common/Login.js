@@ -30,7 +30,7 @@ function Login() {
 
 		if (data.status === 'success') {   
       toast.success('Login Successful!');   
-      sessionStorage.setItem("token",JSON.stringify({token:data.token}))   
+      sessionStorage.setItem("token",(data.token))   
       loginBtn.innerHTML="Signin";
       window.location.href='/';
 		}else{
