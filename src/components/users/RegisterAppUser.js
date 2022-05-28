@@ -12,9 +12,11 @@ function RegisterAppUser() {
       email:"",
       password:"",
       username: "",
-      role: "",
-      photo: ""
+      role: ""
   })
+  const [ file, setFiles] = useState('')
+  const [ preview, setPreview] = useState('')
+
   const handleChange = e => {
     const { name, value } = e.target
     setUser({
@@ -22,10 +24,20 @@ function RegisterAppUser() {
         [name]: value
     })
 }
+const uploadHandler = (event) => {
+const selectedFile=event.target.files[0]
+setFiles(selectedFile) 
+const filePreview=URL.createObjectURL(selectedFile);
+console.log(filePreview);
+setPreview(filePreview);
 
+}
 const clearState = () => {
   setUser('')
+  setPreview('');
+  setFiles('');
 }
+
 const register = (event) => {
   event.preventDefault();
   let registerForm=document.getElementById('registerForm');  
@@ -41,8 +53,19 @@ const register = (event) => {
   }else if(role==''){
     toast.error('Role Required');
   }else{  
-  
-      axios.post("CreateAppUser", user)
+    const formData= new FormData();
+    formData.append('name',name);
+    formData.append('username',username);
+    formData.append('email',email);
+    formData.append('password',password);
+    formData.append('role',role);
+    formData.append('photo',file.name);   
+   formData.append('myfile',file);
+   axios.post("CreateAppUser", formData, {
+    headers: {
+      "encType": "multipart/form-data"
+    }
+  })
       .then( res => {
           console.log(res.data)
           if (res.data.status === 'success') {   
@@ -58,67 +81,7 @@ const register = (event) => {
   
     }
 }
-// const [role, setRole] = useState([])
 
-// function Reset(){
-//   setName("");
-//   setUsername("");
-//   setEmail("");
-//   setRole("");
-//   setPassword("");
-// }
-// const options = [
-//   { value: '', label: 'Choose' },
-//   { value: 'Admin', label: 'Admin' },
-//   { value: 'HRM', label: 'HRM' },
-//   { value: 'Accounts', label: 'Accounts' }
-// ]
-
-
-// function onChangeInput(value) {  
-//   setRole(value.value)
-// //  console.log(value); 
-// }
-// console.log(role);
-
-
-//     async function registerUser(event) {
-// 		event.preventDefault();
-//     let registerBtn=document.getElementById('registerBtn');    
-//     if(name.length==0){
-//       toast.error('Name Required');
-//     }else if(username.length==0){
-//       toast.error('Username Required');
-//     }else{
-//     registerBtn.innerHTML="Registering....";   
-// 		const response = await fetch('http://localhost:5000/api/v1/CreateAppUser', {
-// 			method: 'POST',
-//  			headers: {
-// 				'Content-Type': 'application/json',
-//         'token-key': `${JSON.parse(localStorage.getItem('token'))}`},
-//         body: JSON.stringify({
-// 				name,
-//         username,
-// 				email,
-//         role,
-// 				password,
-// 			}),
-// 		})
-
-// 		const data = await response.json();
-
-// 		if (data.status === 'success') {   
-//       toast.success('App User Successfully Created!');      
-//       registerBtn.innerHTML="Register";
-//       Reset();
-// 			// history.push('login')
-// 		}else{
-//       toast.error('Already registered! Try another');
-//       registerBtn.innerHTML="Register";   
-      
-//     }
-// 	}
-// }
 
   return (
   <div>
@@ -150,7 +113,7 @@ const register = (event) => {
               </div>
          
                 <div className="card-body">
-                <Form id="registerForm" onSubmit={register} encType="multipart/form-data">
+                <Form id="registerForm" onSubmit={register}>
                 <div className="row">
                 <div className="col-md-6">
                   <div className="form-group">
@@ -199,19 +162,24 @@ const register = (event) => {
                   </div> 
                   <div className="col-md-6">
                   <div className="form-group">
-                    <label htmlFor="exampleInputFile">Photo {user.photo}</label>
+                    <label htmlFor="exampleInputFile">Photo </label>
                     <div className="input-group">
-                      <div className="custom-file">
-                        <input type="file" name="photo" value={user.photo} className="custom-file-input" id="exampleInputFile" accept="image/png, image/jpeg, image/jpg"  multiple="false" onChange={ handleChange } />
-                        <label className="custom-file-label" htmlFor="exampleInputFile">Choose Photo</label>
+                      <div className="custom-file"> 
+
+                      <input type="file" onChange={uploadHandler} />
+                      
                       </div>
                       <div className="input-group-append">
                         <span className="input-group-text">Upload</span>
                       </div>
                     </div>
                   </div>
+                  <div className="card-image waves-effect waves-block waves-light">
+                  {file && <img src={preview} alt={file.name} />}
+            {/* <img className="activator" style={{ width: '30%', height: 100 }} src={user.photo} /> */}
+          </div>  
                   </div>
-                                  
+                        
                   </div>
                  
           <Button id="registerBtn" variant="primary" type="submit" className="submit-btn">
